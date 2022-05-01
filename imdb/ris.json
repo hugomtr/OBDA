@@ -1,0 +1,120 @@
+{
+  "mappings": [
+    
+    
+    {
+      "name": "SearchActorsByFilm",
+      "head": [
+        [ 
+          "$ACTOR",
+          "<ex:hasPlayedIn>",
+          "$FILM" 
+        ]
+      ],
+      "body": {
+        "datasource": "IMDB_SQLITE",
+        "templates": {
+          "ACTOR": "N.name",
+          "FILM": "T.title"
+        },
+        "query": "select T.title, N.name from cast_info AS CAA, title AS T, name AS N where CAA.movie_id = T.id and CAA.person_id = N.id and CAA.role_id < 3"
+      } 
+    }, 
+
+    {
+      "name": "SearchFilmByKeyword",
+      "head": [
+        [ 
+          "$FILM",
+          "<ex:hasKeyword>",
+          "$KEYWORD"
+        ]
+      ],
+      "body": {
+        "datasource": "IMDB_SQLITE",
+        "templates": {
+          "KEYWORD": "K.keyword",
+          "FILM": "T.title"
+        },
+        "query": "select T.title, K.keyword from title as T, movie_keyword as MV, keyword as K where T.id = MV.movie_id and MV.keyword_id = K.id"
+      } 
+    },
+
+    {
+      "name": "searchCastingByFilmTitle",
+      "head": [
+        [
+          "$PERSON",
+          "<ex:hasCastIn>",
+          "$FILM"
+        ]
+      ],
+      "body": {
+        "datasource": "IMDB_SQLITE",
+        "templates": {
+          "PERSON": "N.name",
+          "FILM": "T.title"
+        },
+        "query": "select T.title, N.name from cast_info AS CAA, title AS T, role_type AS RT, name AS N where movie_id = T.id and CAA.role_id < 5 and CAA.person_id = N.id and CAA.role_id = RT.id"
+      } 
+    },
+
+    {
+      "name": "searchFilmsMadeByProducerAgivenYear",
+      "head": [
+        [
+          "$PRODUCER",
+          "<ex:hasProduced>",
+          "$FILM"
+        ],
+        [
+          "$FILM",
+          "<ex:hasReleaseYear>",
+          "$YEAR"
+        ]
+      ],
+      "body": {
+        "datasource": "IMDB_SQLITE",
+        "templates": {
+          "PRODUCER": "N.name",
+          "FILM": "T.title",
+          "YEAR": "T.production_year"
+        },
+        "query": "select T.title, T.production_year, N.name from title as T, cast_info as CAA, name as N, role_type as RT where N.id = CAA.person_id and CAA.role_id = 4 and CAA.role_id = RT.id and CAA.movie_id = T.id"
+      } 
+    }, 
+
+    {
+      "name": "searchGenreFilmByTitle",
+      "head": [
+        [
+          "$FILM",
+          "<ex:hasTitle>",
+          "$GENRE"
+        ]
+      ],
+      "body": {
+        "datasource": "IMDB_SQLITE",
+        "templates": {
+          "FILM": "T.title",
+          "GENRE": "MI.info"
+        },
+        "query": "select T.title, MI.info from movie_info AS MI, info_type AS IT, title AS T where MI.info_type_id = IT.id and MI.info_type_id=3 and MI.movie_id = T.id"
+      } 
+    }
+     
+  ],
+  "datasources": [
+    {  
+      "name": "IMDB_SQLITE",
+      "type": "SQLITE",
+      "parameters": {
+        "databasePath": "./imdb.db"
+      }
+    }
+  ],
+  "RDFSRuleSet": "RDFS",
+  "name": "IMDB",
+  "description": "système OBDA sur IMDB à compléter",
+  "ontology": "imdb-ontology.nt"
+}
